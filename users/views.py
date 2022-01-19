@@ -33,7 +33,7 @@ class LogInView(View):
                     'user_type': user_type
                 }
             )
-            token = jwt.encode({'kakao_id': user.kakao_id}, SECRET_KEY, ALGORITHM)
+            token = jwt.encode({'id': user.kakao_id}, SECRET_KEY, ALGORITHM)
             return JsonResponse({'token': token}, status=200)
         except UserType.DoesNotExist:
             return JsonResponse({'message': 'USERTYPE_DOES_NOT_EXIST'}, status=404)
