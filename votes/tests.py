@@ -1,9 +1,15 @@
+import json
+import jwt
+
+from votes.models import Vote
+from products.models import Product, MainImage, Menu, Tag, TagCategory, SubImage, ProductTag
+from users.models import User, UserType
+
 from django.test import TestCase, Client
+from my_settings import SECRET_KEY, ALGORITHM
+from utils.decorator import login_decorator
 
-from users.models    import UserType, User
-from products.models import Menu, MainImage, TagCategory, Tag, Product, ProductTag, SubImage
-
-class ProductDetailTest(TestCase):
+class VoteTest(TestCase):
     def setUp(self):
         user_type_list = [
             UserType(
@@ -248,70 +254,6 @@ class ProductDetailTest(TestCase):
         ]
         Product.objects.bulk_create(product_list)
 
-        sub_image_list = [
-            SubImage(
-                id         = 1,
-                image_url  = 'sub_image_url1',
-                product_id = 1
-            ),
-            SubImage(
-                id         = 2,
-                image_url  = 'sub_image_url2',
-                product_id = 1
-            ),
-            SubImage(
-                id         = 3,
-                image_url  = 'sub_image_url3',
-                product_id = 2
-            ),
-            SubImage(
-                id         = 4,
-                image_url  = 'sub_image_url4',
-                product_id = 2
-            ),
-            SubImage(
-                id         = 5,
-                image_url  = 'sub_image_url5',
-                product_id = 3
-            ),
-            SubImage(
-                id         = 6,
-                image_url  = 'sub_image_url6',
-                product_id = 3
-            ),
-            SubImage(
-                id         = 7,
-                image_url  = 'sub_image_url7',
-                product_id = 4
-            ),
-            SubImage(
-                id         = 8,
-                image_url  = 'sub_image_url8',
-                product_id = 4
-            ),
-            SubImage(
-                id         = 9,
-                image_url  = 'sub_image_url9',
-                product_id = 5
-            ),
-            SubImage(
-                id         = 10,
-                image_url  = 'sub_image_url10',
-                product_id = 5
-            ),
-            SubImage(
-                id         = 11,
-                image_url  = 'sub_image_url11',
-                product_id = 6
-            ),
-            SubImage(
-                id         = 12,
-                image_url  = 'sub_image_url12',
-                product_id = 6
-            )
-        ]
-        SubImage.objects.bulk_create(sub_image_list)
-
         product_tag_list = [
             ProductTag(
                 tag_id     = 1,
@@ -400,6 +342,28 @@ class ProductDetailTest(TestCase):
         ]
         ProductTag.objects.bulk_create(product_tag_list)
 
+        vote_list = [
+            Vote(
+                id                     = 1,
+                user_id                = 1,
+                product_id             = 1,
+                sensibility            = '10',
+                intent_to_visit        = '10',
+                impression_on_picture = '10',
+                is_voted               = True
+            ),
+            Vote(
+                id                     = 2,
+                user_id                = 1,
+                product_id             = 2,
+                sensibility            = '10',
+                intent_to_visit        = '10',
+                impression_on_picture = '10',
+                is_voted               = True
+            ),
+        ]
+        Vote.objects.bulk_create(vote_list)
+
     def tearDown(self):
         ProductTag.objects.all().delete()
         SubImage.objects.all().delete()
@@ -409,43 +373,35 @@ class ProductDetailTest(TestCase):
         MainImage.objects.all().delete()
         Menu.objects.all().delete()
         User.objects.all().delete()
-        UserType.objects.all().delete()
-        
-    def test_success_detail_get(self):
-        client   = Client()
-        response = client.get('/products/1')
+        UserType.objects.all().delete()    
+        Vote.objects.all().delete()
 
+    @login_decorator
+    def test_success_vote_post(self):
+        client = Client()
+        vote = {
+            'user_id' : '1',
+            'product_id' : '1',
+            'sensibility' : '10',
+            'intent_to_visit' : '10',
+            'impression_on_picture' : '10',
+            'is_voted' : True
+        }	
+		
+        response = client.post('/votes', json.dumps(vote), content_type='application/json')
+
+        token            = response.json()['token']
+        decoded_kakao_id = jwt.decode(token, SECRET_KEY, ALGORITHM)['id']
+        kakao_user       = User.objects.get(kakao_id=decoded_kakao_id)
+        
+        self.assertEqual(kakao_user.kakao_id, 100)
+
+        self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json(), 
             {
-            'result': {
-                'description' : 'description1',
-                'main_image'  : 'main_image_url1',
-                'product_name': 'product1',
-                'sub_image'   : ['sub_image_url1', 'sub_image_url2'],
-                'tag'         : ['tag_name1', 'tag_name4', 'tag_name10'],
-                'user'        : 'nick1'
-                }
+                'message' : 'VOTE_SUCCESS'
             }
         )
+
         
-        self.assertEqual(response.status_code, 200)
-
-    def test_fail_detail_get_when_the_product_does_not_exist(self):
-        client   = Client()
-        response = client.get('/products/100')
-
-        self.assertEqual(response.json(), 
-            {'message': 'DOES_NOT_EXIST'}
-        )
         
-        self.assertEqual(response.status_code, 404)
-
-    def test_fail_detail_get_when_the_image_does_not_exist(self):
-        client   = Client()
-        response = client.get('/products/7')
-
-        self.assertEqual(response.json(),
-            {'message': 'IMAGE_DOES_NOT_EXIST'}
-        )
-
-        self.assertEqual(response.status_code, 400)
