@@ -1,12 +1,368 @@
 from unittest import mock
 from datetime import datetime
 
-from django.test import TestCase, Client
+from django.test      import TestCase, Client
 
 from users.models    import UserType, User, Profile
 from products.models import Menu, MainImage, TagCategory, Tag, Product, ProductTag, SubImage
 from votes.models    import Vote
 
+class ProductMainTest(TestCase):
+    def setUp(self):
+
+        user_type_list = [
+            UserType(
+                id   = 1,
+                name = 'mentor'
+            ),
+            UserType(
+                id   = 2,
+                name = 'mentee'
+            )
+        ]
+        UserType.objects.bulk_create(user_type_list)
+
+        user_list = [
+            User(
+                id           = 1,
+                kakao_id     = 100,
+                nickname     = 'nick1',
+                email        = 'email1@bt.com',
+                user_type_id = 1
+            ),
+            User(
+                id           = 2,
+                kakao_id     = 200,
+                nickname     = 'nick2',
+                email        = 'email2@bt.com',
+                user_type_id = 2
+            ),
+            User(
+                id           = 3,
+                kakao_id     = 300,
+                nickname     = 'nick3',
+                email        = 'email3@bt.com',
+                user_type_id = 1
+            )
+        ]
+        User.objects.bulk_create(user_list)
+       
+        menu_list = [
+            Menu(
+                id   = 1,
+                name = 'menu1'
+            ),
+            Menu(
+                id   = 2,
+                name = 'menu2'
+            ),
+            Menu(
+                id   = 3,
+                name = 'menu3'
+            )
+        ]
+        Menu.objects.bulk_create(menu_list)
+
+        main_image_list = [
+            MainImage(
+                id        = 1,
+                image_url = 'main_image_url1'
+            ),
+            MainImage(
+                id        = 2,
+                image_url = 'main_image_url2'
+            ),
+            MainImage(
+                id        = 3,
+                image_url = 'main_image_url3'
+            ),
+            MainImage(
+                id        = 4,
+                image_url = 'main_image_url4'
+            ),
+            MainImage(
+                id        = 5,
+                image_url = 'main_image_url5'
+            ),
+            MainImage(
+                id        = 6,
+                image_url = 'main_image_url6'
+            ),
+            MainImage(
+                id        = 7,
+                image_url = 'main_image_url7'
+            )
+        ]
+        MainImage.objects.bulk_create(main_image_list)
+
+        product_list =[
+            Product(
+                id            = 1,
+                name          = 'product1',
+                description   = 'description1',
+                main_image_id = 1,
+                menu_id       = 1,
+                user_id       = 1,
+                created_at    = '2022년 1월 19일'
+            ),
+        ]
+        Product.objects.bulk_create(product_list)
+
+        vote_list = [
+            Vote(
+                id                     = 1,
+                product_id             = 1,
+                user_id                = 1,
+                sensibility            = '9',
+                intent_to_visit        = '9',
+                impression_on_picture = '6',
+                is_voted               = 1
+            ),
+        ]
+        Vote.objects.bulk_create(vote_list)
+
+    def tearDown(self):
+        ProductTag.objects.all().delete()
+        Product.objects.all().delete()
+        Tag.objects.all().delete()
+        TagCategory.objects.all().delete()
+        MainImage.objects.all().delete()
+        Menu.objects.all().delete()
+        User.objects.all().delete()
+        UserType.objects.all().delete()
+        Vote.objects.all().delete()
+        
+    def test_success_main_get(self):
+        client   = Client()
+        response = client.get('/products')
+        self.maxDiff = None
+
+        self.assertEqual(response.json(), 
+            {'message': 'SUCCESS',
+
+            'result': [
+                {
+                'section'   : 'MAIN',
+                'product' : {
+                'product_id'   : 1,    
+                'product_name' : 'product1',
+                'main_image'   : 'main_image_url1',
+                'created_at'   : '2022년 01월 19일',
+                'user'         : 'nick1',
+                'score'        : {
+                    'sensibility': '9.000000', 
+                    'intent_to_visit': '9.000000', 
+                    'impression_on_picture':'6.000000'}
+                    }
+                
+            },
+                {
+                'section'   : 'RANDOM',
+                'product' : [{
+                'product_id'   : 1,
+                'product_name' : 'product1',
+                'main_image'   : 'main_image_url1',
+                'created_at'   : '2022년 01월 19일',
+                'user'         : 'nick1'
+                },
+            ]},
+
+                {
+                'section'   : 'BEST',
+                'product' : [{
+                'product_id'   : 1,
+                'product_name' : 'product1',
+                'main_image'   : 'main_image_url1',
+                'created_at'   : '2022년 01월 19일',
+                'user'         : 'nick1'
+                },
+            ]}
+        ]}
+        )    
+            
+        self.assertEqual(response.status_code, 200)
+
+class ProductAllTest(TestCase):
+    def setUp(self):
+
+        user_type_list = [
+            UserType(
+                id   = 1,
+                name = 'mentor'
+            ),
+            UserType(
+                id   = 2,
+                name = 'mentee'
+            )
+        ]
+        UserType.objects.bulk_create(user_type_list)
+
+        user_list = [
+            User(
+                id           = 1,
+                kakao_id     = 100,
+                nickname     = 'nick1',
+                email        = 'email1@bt.com',
+                user_type_id = 1
+            ),
+            User(
+                id           = 2,
+                kakao_id     = 200,
+                nickname     = 'nick2',
+                email        = 'email2@bt.com',
+                user_type_id = 2
+            ),
+            User(
+                id           = 3,
+                kakao_id     = 300,
+                nickname     = 'nick3',
+                email        = 'email3@bt.com',
+                user_type_id = 1
+            )
+        ]
+        User.objects.bulk_create(user_list)
+       
+        menu_list = [
+            Menu(
+                id   = 1,
+                name = 'menu1'
+            ),
+            Menu(
+                id   = 2,
+                name = 'menu2'
+            ),
+            Menu(
+                id   = 3,
+                name = 'menu3'
+            )
+        ]
+        Menu.objects.bulk_create(menu_list)
+
+        main_image_list = [
+            MainImage(
+                id        = 1,
+                image_url = 'main_image_url1'
+            ),
+            MainImage(
+                id        = 2,
+                image_url = 'main_image_url2'
+            ),
+            MainImage(
+                id        = 3,
+                image_url = 'main_image_url3'
+            ),
+            MainImage(
+                id        = 4,
+                image_url = 'main_image_url4'
+            ),
+            MainImage(
+                id        = 5,
+                image_url = 'main_image_url5'
+            ),
+            MainImage(
+                id        = 6,
+                image_url = 'main_image_url6'
+            ),
+            MainImage(
+                id        = 7,
+                image_url = 'main_image_url7'
+            )
+        ]
+        MainImage.objects.bulk_create(main_image_list)
+
+        product_list =[
+            Product(
+                id            = 1,
+                name          = 'product1',
+                description   = 'description1',
+                main_image_id = 1,
+                menu_id       = 1,
+                user_id       = 1,
+                created_at    = '2022년 1월 19일'
+            ),
+            Product(
+                id            = 2,
+                name          = 'product2',
+                description   = 'description2',
+                main_image_id = 2,
+                menu_id       = 1,
+                user_id       = 2,
+                created_at    = '2022년 1월 19일'
+            ),
+            Product(
+                id            = 3,
+                name          = 'product3',
+                description   = 'description3',
+                main_image_id = 3,
+                menu_id       = 1,
+                user_id       = 3,
+                created_at    = '2022년 1월 19일'
+            )
+        ]
+        Product.objects.bulk_create(product_list)
+
+        vote_list = [
+            Vote(
+                id                     = 1,
+                product_id             = 1,
+                user_id                = 1,
+                sensibility            = '9',
+                intent_to_visit        = '9',
+                impression_on_picture = '6',
+                is_voted               = 1
+            ),
+        ]
+        Vote.objects.bulk_create(vote_list)
+
+    def tearDown(self):
+        ProductTag.objects.all().delete()
+        Product.objects.all().delete()
+        Tag.objects.all().delete()
+        TagCategory.objects.all().delete()
+        MainImage.objects.all().delete()
+        Menu.objects.all().delete()
+        User.objects.all().delete()
+        UserType.objects.all().delete()
+        Vote.objects.all().delete()
+        
+    def test_success_main_get(self):
+        client   = Client()
+        response = client.get('/products/list')
+        self.maxDiff = None
+
+        self.assertEqual(response.json(), 
+            {'message': 'SUCCESS',
+
+            'result': [
+                {
+                'section'   : 'ALL',
+                'product' : [{
+                'product_id'   : 3,
+                'product_name' : 'product3',
+                'main_image'   : 'main_image_url3',
+                'created_at'   : '2022년 01월 19일',
+                'user'         : 'nick3'
+                },
+                {
+                'product_id'   : 2,
+                'product_name' : 'product2',
+                'main_image'   : 'main_image_url2',
+                'created_at'   : '2022년 01월 19일',
+                'user'         : 'nick2'
+                },
+                {
+                'product_id'   : 1,
+                'product_name' : 'product1',
+                'main_image'   : 'main_image_url1',
+                'created_at'   : '2022년 01월 19일',
+                'user'         : 'nick1'
+                },
+            ]},
+            ]}
+        )    
+            
+        self.assertEqual(response.status_code, 200)
+    
 class ProductDetailTest(TestCase):
     def setUp(self):
         user_type_list = [
