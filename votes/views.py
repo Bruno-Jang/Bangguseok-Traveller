@@ -18,7 +18,7 @@ class VoteView(View):
             sensibility           = data['sensibility']
             intent_to_visit       = data['intent_to_visit']
             impression_on_picture = data['impression_on_picture']
-
+            print(user_id, product_id)
             if Vote.objects.filter(user_id = user_id, product_id = product_id).exists():
                 return JsonResponse({'message': 'ALREADY_VOTED'}, status = 400)
 

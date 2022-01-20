@@ -14,8 +14,9 @@ class ProductMainView(View):
              
             main_product    = Product.objects.order_by('?').first()
             random_products = Product.objects.order_by('?')[offset:offset+limit]
-            best_products = Product.objects.prefetch_related('user').annotate(votes_count=Count('vote')).order_by('-votes_count')[offset:offset+limit]
-          
+            recent_products = Product.objects.all().order_by('-created_at')[offset:offset+limit]
+
+
             main_product_vote_result = Vote.objects.filter(product_id=main_product.id).aggregate(
                 sensibility = Avg('sensibility'), 
                 intent_to_visit = Avg('intent_to_visit'), 
@@ -30,10 +31,7 @@ class ProductMainView(View):
                 'product_name' : main_product.name,
                 'main_image'   : main_product.main_image.image_url,
                 'created_at'   : main_product.created_at.strftime('%Y년 %m월 %d일'),
-                'user'         : {
-                    'user_id'       : main_product.user.first().id,
-                    'user_nickname' : main_product.user.first().nickname 
-                } ,
+                'user'         : main_product.user.nickname,
                 'score'        : main_product_vote_result,
             }},
                 {
@@ -43,23 +41,17 @@ class ProductMainView(View):
                 'product_name' : random_product.name,
                 'main_image'   : random_product.main_image.image_url,
                 'created_at'   : random_product.created_at.strftime('%Y년 %m월 %d일'),
-                'user'         : {
-                    'user_id'       : random_product.user.first().id,
-                    'user_nickname' : random_product.user.first().nickname
-                },
+                'user'         : random_product.user.nickname,
             } for random_product in random_products]},
             {
-                'section'   : 'BEST',
+                'section'   : 'NEW',
                 'product' : [{
-                'product_id'   : best_product.id,    
-                'product_name' : best_product.name,
-                'main_image'   : best_product.main_image.image_url,
-                'created_at'   : best_product.created_at.strftime('%Y년 %m월 %d일'),
-                'user'         : {
-                    'user_id'       : best_product.user.first().id,
-                    'user_nickname' : best_product.user.first().nickname
-                },
-            } for best_product in best_products]},
+                'product_id'   : recent_product.id,    
+                'product_name' : recent_product.name,
+                'main_image'   : recent_product.main_image.image_url,
+                'created_at'   : recent_product.created_at.strftime('%Y년 %m월 %d일'),
+                'user'         : recent_product.user.nickname,
+            } for recent_product in recent_products]},
             ] 
 
             return JsonResponse({'message': 'SUCCESS', 'result': data}, status = 200)
@@ -70,10 +62,7 @@ class ProductMainView(View):
 class ProductAllView(View):
     def get(self, request):
         try:
-            offset = int(request.GET.get('offset', 0))
-            limit  = int(request.GET.get('limit', 8))
-        
-            all_products = Product.objects.all().order_by('-created_at')[offset:offset+limit]
+            all_products = Product.objects.all().order_by('-created_at')
 
             data = [
                 {
@@ -83,10 +72,7 @@ class ProductAllView(View):
                 'product_name' : product.name,
                 'main_image'   : product.main_image.image_url,
                 'created_at'   : product.created_at.strftime('%Y년 %m월 %d일'),
-                'user'         : {
-                    'user_id'       : product.user.first().id,
-                    'user_nickname' : product.user.first().nickname
-                },
+                'user'         : product.user.nickname,
             } for product in all_products ]}
             ] 
 
@@ -115,7 +101,7 @@ class ProductDetailView(View):
                     'main_image'   : product.main_image.image_url,
                     'sub_image'    : [sub_image.image_url for sub_image in sub_images],
                     'tag'          : [tags.name for tags in product.tags.all()],
-                    'created_at'   : product.created_at
+                    'created_at'   : product.created_at.strftime('%Y년 %m월 %d일')
             },
                 'vote_data': [{
                     'voted_user_id'      : vote.user.id,
