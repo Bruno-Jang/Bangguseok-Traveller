@@ -37,4 +37,3 @@ class LogInView(View):
             return JsonResponse({'token': token}, status=200)
         except UserType.DoesNotExist:
             return JsonResponse({'message': 'USERTYPE_DOES_NOT_EXIST'}, status=404)
-        
