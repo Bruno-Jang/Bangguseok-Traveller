@@ -520,6 +520,28 @@ class ProductDetailTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 200)
+        
+    def test_success_tag_list_get(self):
+        
+        client   = Client()
+        response = client.get('/products/categories')
+        
+        self.assertEqual(response.json(),
+            {
+                'result': [{
+                        'tag_category_id': 1,
+                        'tag_category_name': 'tag_category1',
+                        'tags': [{
+                            'id': 1,
+                            'name': 'tag_name1'},
+                            {'id': 2,
+                            'name': 'tag_name2'},
+                            {'id': 3,
+                            'name': 'tag_name3'}]
+                    }]
+            }                
+        )
+        self.assertEqual(response.status_code, 200)
 
     def test_fail_detail_get_when_the_product_does_not_exist(self):
         client   = Client()
