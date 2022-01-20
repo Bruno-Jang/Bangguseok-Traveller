@@ -2,7 +2,6 @@ from django.db import models
 
 from utils.time_stamp import TimeStampModel
 from users.models     import User
-from votes.models import Vote
 
 class Menu(models.Model):
     name = models.CharField(max_length=20)
@@ -13,7 +12,7 @@ class Menu(models.Model):
 class Product(TimeStampModel):
     name        = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    user        = models.ManyToManyField(User, through=Vote)
+    user        = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     menu        = models.ForeignKey('Menu', on_delete=models.SET_NULL, null=True)
     tags        = models.ManyToManyField('Tag', through='ProductTag')
     main_image  = models.OneToOneField('MainImage', on_delete=models.SET_NULL, null=True)
