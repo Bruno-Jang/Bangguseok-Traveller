@@ -22,4 +22,4 @@ class Profile(TimeStampModel):
     image_url = models.CharField(max_length=1000)
     
     class Meta:
-        db_table = 'profile'
+        db_table = 'profiles'

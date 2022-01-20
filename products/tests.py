@@ -1,7 +1,11 @@
+from unittest import mock
+from datetime import datetime
+
 from django.test import TestCase, Client
 
-from users.models    import UserType, User
+from users.models    import UserType, User, Profile
 from products.models import Menu, MainImage, TagCategory, Tag, Product, ProductTag, SubImage
+from votes.models    import Vote
 
 class ProductDetailTest(TestCase):
     def setUp(self):
@@ -16,42 +20,76 @@ class ProductDetailTest(TestCase):
             )
         ]
         UserType.objects.bulk_create(user_type_list)
+        
+        profile_list = [
+            Profile(
+                id        = 1,
+                image_url = 'image_url1'
+            ),
+            Profile(
+                id        = 2,
+                image_url = 'image_url2'
+            ),
+            Profile(
+                id        = 3,
+                image_url = 'image_url3'
+            ),
+            Profile(
+                id        = 4,
+                image_url = 'image_url4'
+            ),
+            Profile(
+                id        = 5,
+                image_url = 'image_url5'
+            )
+        ]
+        Profile.objects.bulk_create(profile_list)
 
         user_list = [
             User(
-                id           = 1,
-                kakao_id     = 100,
-                nickname     = 'nick1',
-                email        = 'email1@bt.com',
-                user_type_id = 1
+                id              = 1,
+                kakao_id        = 100,
+                nickname        = 'nick1',
+                email           = 'email1@bt.com',
+                user_type_id    = 1,
+                user_profile_id = 1,
+                created_at      = datetime(2022, 1, 20, 1, 0, 10)
             ),
             User(
-                id           = 2,
-                kakao_id     = 200,
-                nickname     = 'nick2',
-                email        = 'email2@bt.com',
-                user_type_id = 2
+                id              = 2,
+                kakao_id        = 200,
+                nickname        = 'nick2',
+                email           = 'email2@bt.com',
+                user_type_id    = 2,
+                user_profile_id = 2,
+                created_at      = datetime(2022, 1, 20, 1, 0, 10)
             ),
             User(
-                id           = 3,
-                kakao_id     = 300,
-                nickname     = 'nick3',
-                email        = 'email3@bt.com',
-                user_type_id = 1
+                id              = 3,
+                kakao_id        = 300,
+                nickname        = 'nick3',
+                email           = 'email3@bt.com',
+                user_type_id    = 1,
+                user_profile_id = 3,
+                created_at      = datetime(2022, 1, 20, 1, 0, 10)
             ),
             User(
-                id           = 4,
-                kakao_id     = 400,
-                nickname     = 'nick4',
-                email        = 'email4@bt.com',
-                user_type_id = 2
+                id              = 4,
+                kakao_id        = 400,
+                nickname        = 'nick4',
+                email           = 'email4@bt.com',
+                user_type_id    = 2,
+                user_profile_id = 4,
+                created_at      = datetime(2022, 1, 20, 1, 0, 10)
             ),
             User(
-                id           = 5,
-                kakao_id     = 500,
-                nickname     = 'nick5',
-                email        = 'email5@bt.com',
-                user_type_id = 1
+                id              = 5,
+                kakao_id        = 500,
+                nickname        = 'nick5',
+                email           = 'email5@bt.com',
+                user_type_id    = 1,
+                user_profile_id = 5,
+                created_at      = datetime(2022, 1, 20, 1, 0, 10)
             )
         ]
         User.objects.bulk_create(user_list)
@@ -187,7 +225,7 @@ class ProductDetailTest(TestCase):
             )
         ]
         Tag.objects.bulk_create(tag_list)
-
+            
         product_list =[
             Product(
                 id            = 1,
@@ -195,7 +233,8 @@ class ProductDetailTest(TestCase):
                 description   = 'description1',
                 main_image_id = 1,
                 menu_id       = 1,
-                user_id       = 1
+                user_id       = 1,
+                
             ),
             Product(
                 id            = 2,
@@ -246,7 +285,10 @@ class ProductDetailTest(TestCase):
                 user_id       = 3
             )
         ]
-        Product.objects.bulk_create(product_list)
+        mock_date = datetime(2022, 1, 20, 1, 00, 10, 703055)
+        with mock.patch('django.utils.timezone.now') as mock_now:
+            mock_now.return_value = mock_date
+            Product.objects.bulk_create(product_list)
 
         sub_image_list = [
             SubImage(
@@ -399,7 +441,38 @@ class ProductDetailTest(TestCase):
             )
         ]
         ProductTag.objects.bulk_create(product_tag_list)
-
+        
+        vote_list = [
+            Vote(
+                id                    = 1,
+                sensibility           = 9,
+                intent_to_visit       = 9,
+                impression_on_picture = 9,
+                is_voted              = True,
+                user_id               = 1,
+                product_id            = 1,
+            ),
+            Vote(
+                id                    = 2,
+                sensibility           = 8,
+                intent_to_visit       = 8,
+                impression_on_picture = 8,
+                is_voted              = True,
+                user_id               = 2,
+                product_id            = 2,
+            ),
+            Vote(
+                id                    = 3,
+                sensibility           = 7,
+                intent_to_visit       = 7,
+                impression_on_picture = 7,
+                is_voted              = True,
+                user_id               = 3,
+                product_id            = 3,
+            )
+        ]
+        Vote.objects.bulk_create(vote_list)
+        
     def tearDown(self):
         ProductTag.objects.all().delete()
         SubImage.objects.all().delete()
@@ -410,24 +483,42 @@ class ProductDetailTest(TestCase):
         Menu.objects.all().delete()
         User.objects.all().delete()
         UserType.objects.all().delete()
+        Profile.objects.all().delete()
+        Vote.objects.all().delete()
         
     def test_success_detail_get(self):
+            
         client   = Client()
         response = client.get('/products/1')
+        
 
         self.assertEqual(response.json(), 
             {
-            'result': {
-                'description' : 'description1',
-                'main_image'  : 'main_image_url1',
-                'product_name': 'product1',
-                'sub_image'   : ['sub_image_url1', 'sub_image_url2'],
-                'tag'         : ['tag_name1', 'tag_name4', 'tag_name10'],
-                'user'        : 'nick1'
+                'result': {
+                    'product_data': {
+                        'product_id'  : 1,
+                        'product_name': 'product1',
+                        'description' : 'description1',
+                        'user_id'     : 1,
+                        'user'        : 'nick1',
+                        'main_image'  : 'main_image_url1',
+                        'sub_image'   : ['sub_image_url1', 'sub_image_url2'],
+                        'tag'         : ['tag_name1', 'tag_name4', 'tag_name10'],
+                        'created_at'  : '2022-01-20T01:00:10.703'
+                    },
+                    'vote_data': [{
+                        'voted_user_id'      : 1,
+                        'voted_user_nickname': 'nick1',
+                        'voted_user_image'   : 'image_url1',
+                        'user_type'          : 'mentor',
+                        'vote1'              : 9,
+                        'vote2'              : 9,
+                        'vote3'              : 9,
+                        'score_average'      : '9.00'
+                    }]
                 }
             }
         )
-        
         self.assertEqual(response.status_code, 200)
 
     def test_fail_detail_get_when_the_product_does_not_exist(self):
