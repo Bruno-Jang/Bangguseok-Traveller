@@ -18,10 +18,10 @@
 ## 시연 영상
 
 + Frontend
-[![Frotend 영상]](https://img.youtube.com/vi/o_FYp6VgCoo/0.jpg)](https://youtu.be/o_FYp6VgCoo)
+[![방구석 트레블러_Frontend Demo]](https://img.youtube.com/vi/o_FYp6VgCoo/0.jpg)](https://youtu.be/o_FYp6VgCoo)
 
 + Backand
-[![Backend 영상]](https://img.youtube.com/vi/CrL0FQz1F7s/0.jpg)](https://youtu.be/CrL0FQz1F7s)
+[![bangguseok traveller–back terminal record]](https://img.youtube.com/vi/CrL0FQz1F7s/0.jpg)](https://youtu.be/CrL0FQz1F7s)
 
 
 ## DB modeling
