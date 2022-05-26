@@ -5,7 +5,8 @@ from django.http.response import JsonResponse
 from django.views         import View
 
 from bangguseok_traveller.settings import SECRET_KEY, ALGORITHM
-from users.models                  import User, UserType
+from .models                  import User, UserType
+
 
 class LogInView(View):
     def get(self, request, user_type):

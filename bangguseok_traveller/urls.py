@@ -1,7 +1,8 @@
 from django.urls import path, include
 
+
 urlpatterns = [
-    path('users', include('users.urls')),
-    path('products', include('products.urls')),
-    path('votes', include('votes.urls')),
+    path('api/v1/users', include('apps.users.urls')),
+    path('api/v1/products', include('apps.products.urls')),
+    path('api/v1/votes', include('apps.votes.urls')),
 ]

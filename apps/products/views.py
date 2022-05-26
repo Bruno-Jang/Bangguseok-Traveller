@@ -1,9 +1,10 @@
 from django.http  import JsonResponse
 from django.views import View
-from django.db.models import Avg, Count
+from django.db.models import Avg
 
-from votes.models    import Vote
-from products.models import Product, SubImage, TagCategory
+from ..votes.models import Vote
+from .models        import Product, SubImage, TagCategory
+
 
 class ProductMainView(View):
     def get(self, request):
@@ -16,11 +17,10 @@ class ProductMainView(View):
             random_products = Product.objects.order_by('?')[offset:offset+limit]
             recent_products = Product.objects.all().order_by('-created_at')[offset:offset+limit]
 
-
             main_product_vote_result = Vote.objects.filter(product_id=main_product.id).aggregate(
-                sensibility = Avg('sensibility'), 
-                intent_to_visit = Avg('intent_to_visit'), 
-                impression_on_picture = Avg('impression_on_picture')
+                        sensibility = Avg('sensibility'), 
+                        intent_to_visit = Avg('intent_to_visit'), 
+                        impression_on_picture = Avg('impression_on_picture')
             )
 
             data = [
@@ -59,6 +59,7 @@ class ProductMainView(View):
         except Product.DoesNotExist:
             return JsonResponse({'message': 'DOES_NOT_EXIST'}, status = 404)
 
+
 class ProductAllView(View):
     def get(self, request):
         try:
@@ -80,6 +81,7 @@ class ProductAllView(View):
         
         except Product.DoesNotExist:
             return JsonResponse({'message': 'DOES_NOT_EXIST'}, status = 404)
+
 
 class ProductDetailView(View):
     def get(self, request, product_id):
@@ -117,7 +119,8 @@ class ProductDetailView(View):
             return JsonResponse({'result': result}, status = 200)
         except Product.DoesNotExist:
             return JsonResponse({'message': 'DOES_NOT_EXIST'}, status = 404)
- 
+
+
 class TagListView(View):
     def get(self, request):
         try:
@@ -135,7 +138,8 @@ class TagListView(View):
             return JsonResponse({'message': 'TAG_CATEGORY_DOES_NOT_EXIST'}, status=404)
         except ValueError:
             return JsonResponse({'message': 'VALUE_ERROR'}, status=404)
-            
+
+        
 class ProductListView(View):
     def get(self, request, *args, **kwargs):
         try:

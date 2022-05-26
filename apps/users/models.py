@@ -2,11 +2,13 @@ from django.db import models
 
 from utils.time_stamp import TimeStampModel
 
+
 class UserType(models.Model):
     name = models.CharField(max_length=20)
     
     class Meta:
         db_table = 'user_types'
+
 
 class User(TimeStampModel):
     kakao_id     = models.IntegerField()
@@ -17,6 +19,7 @@ class User(TimeStampModel):
     
     class Meta:
         db_table = 'users'
+
 
 class Profile(TimeStampModel):
     image_url = models.CharField(max_length=1000)

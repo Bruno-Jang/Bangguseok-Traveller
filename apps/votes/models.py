@@ -1,7 +1,8 @@
 from django.db import models
 
 from utils.time_stamp import TimeStampModel
-from users.models     import User
+from ..users.models   import User
+
 
 class Vote(TimeStampModel):
     sensibility           = models.DecimalField(max_digits=4, decimal_places=2)

@@ -3,9 +3,10 @@ import json
 from django.http  import JsonResponse
 from django.views import View
 
-from products.models import Product
-from votes.models    import Vote
-from utils.decorator import login_decorator
+from ..products.models import Product
+from .models           import Vote
+from utils.decorator   import login_decorator
+
 
 class VoteView(View):
     @login_decorator

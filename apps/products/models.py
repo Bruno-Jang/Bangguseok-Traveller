@@ -1,7 +1,8 @@
 from django.db import models
 
 from utils.time_stamp import TimeStampModel
-from users.models     import User
+from ..users.models   import User
+
 
 class Menu(models.Model):
     name = models.CharField(max_length=20)
